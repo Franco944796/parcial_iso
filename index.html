@@ -37,7 +37,7 @@ textarea{width:100%;font:14px ui-monospace,Menlo,Consolas,monospace;padding:8px;
 <body>
 <div class="wrap">
 <h1>ISO / CSO — Práctica Parte A (GNU/Linux)</h1>
-<p class="sub">Ejercicios en el mismo formato que los parciales del compilado, basados en la teoría (Explicación de P1, Linux Cont.) y el TP1. Elegí una opción por pregunta y corregí individualmente o todo junto.</p>
+<p class="sub">Ejercicios en el mismo formato que los parciales del compilado, basados en la teoría (Explicación de P1, Linux Cont.) y el TP1. Elegí una sola opción por pregunta: puede ser una afirmación individual (a, b, c…) o una combinación (e, f, g…). Si solo una afirmación es verdadera y ninguna combinación la recoge, la respuesta es esa letra sola. Podés corregir de a una o todo junto.</p>
 
 <div class="bar">
   <button onclick="checkAll()">Corregir todo</button>
@@ -59,6 +59,10 @@ const S = [
  s:["a) 2 particiones primarias y 1 extendida con 6 lógicas","b) 4 particiones primarias y 2 lógicas","c) 1 partición extendida con 3 lógicas","d) 2 particiones primarias y 2 extendidas"],
  o:["e) a, c son correctas","f) a, b son correctas","g) a, b, c son correctas","h) Ninguna opción anterior es correcta"],
  a:0, e:"Las lógicas solo existen dentro de una extendida (la b no tiene extendida), y solo puede haber una extendida por disco (la d es inválida). La extendida ocupa una de las 4 entradas de la tabla."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de las particiones en BIOS/MBR?",
+ s:["a) Puede haber hasta 2 particiones extendidas por disco","b) Sobre la partición extendida se define directamente un tipo de FS","c) Las particiones lógicas se conectan como una lista enlazada","d) Las particiones lógicas pueden marcarse como activas (booteables)"],
+ o:["e) a, c son correctas","f) b, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ one:2, e:"Solo la c es verdadera. a: solo puede existir una extendida por disco. b: “No se define un tipo de FS directamente sobre ella”. d: solo las primarias se pueden marcar como activas. Como la c es correcta, “Ninguna” (h) es falsa."},
 {q:"¿Cuál de las siguientes opciones es correcta acerca de la denominación de discos en GNU/Linux?",
  s:["a) /dev/hda corresponde al disco configurado como Master en el 1º bus IDE","b) /dev/sdb5 es la primera partición lógica del segundo disco SCSI/SATA","c) Las particiones primarias se numeran de la 1 a la 4","d) /dev/hdc corresponde al disco configurado como Slave en el 1º bus IDE"],
  o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
@@ -67,6 +71,10 @@ const S = [
  s:["a) Sus funciones más importantes son la administración de memoria, CPU y E/S","b) Lo que lo hace híbrido es la capacidad de cargar y descargar funcionalidad mediante módulos","c) Los drivers se ejecutan en modo usuario","d) Está licenciado bajo la licencia GPL"],
  o:["e) a, b, d son correctas","f) a, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
  a:0, e:"En un núcleo monolítico los drivers y el código del Kernel se ejecutan en modo privilegiado."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de la historia de GNU/Linux?",
+ s:["a) GNU Hurd se basó en el núcleo TRIX","b) En 1992 Torvalds y Stallman deciden fusionar ambos proyectos","c) La FSF fue creada en 1989","d) Linux se encuentra basado en Windows NT"],
+ o:["e) a, b son correctas","f) b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ one:1, e:"Solo la b es verdadera. a: GNU Hurd se basó en MACH (TRIX se abandonó en 1988). c: la FSF es de 1985; en 1989 se creó la GPL. d: Linux se basa en Minix."},
 {q:"¿Cuál de las siguientes opciones es correcta acerca del versionado del Kernel (A.B.C.D)?",
  s:["a) A denota la versión y es la que cambia con menor frecuencia","b) Antes de la versión 2.6, un número B impar indicaba una versión de producción","c) C cambia cuando hay nuevos drivers o características","d) D cambia cuando se corrige un error grave sin agregar nueva funcionalidad"],
  o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
@@ -99,6 +107,10 @@ const S = [
  s:["a) La especificación EFI es propiedad de Intel","b) GPT utiliza direccionamiento LBA en lugar de cylinder-header-sector","c) La cabecera GPT y la tabla de particiones se escriben solo al principio del disco","d) El MBR heredado se almacena en el LBA 0"],
  o:["e) a, b, d son correctas","f) b, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
  a:0, e:"Se escriben al principio y al final del disco (redundancia)."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del arranque basado en BIOS?",
+ s:["a) El BIOS está grabado en un chip (ROM, NVRAM)","b) El BIOS es de la década del 2000","c) El firmware del BIOS facilita la lectura de filesystems","d) El MBC puede ocupar más de 446 bytes"],
+ o:["e) a, c son correctas","f) a, b, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ one:0, e:"Solo la a es verdadera. El BIOS es de la década del 80, “no facilita la lectura de filesystems” y “el MBC no puede ocupar más de 446 bytes”."},
 {q:"¿Cuál de las siguientes opciones es correcta acerca de Secure Boot?",
  s:["a) Propone mecanismos para un arranque libre de código malicioso","b) Utiliza pares de claves simétricas","c) Las claves públicas se almacenan en el firmware","d) Si la clave privada está vencida o fue revocada, la verificación puede fallar"],
  o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
@@ -115,6 +127,10 @@ const S = [
  s:["a) Los runlevels son reemplazados por targets","b) Utiliza el archivo de configuración /etc/inittab","c) Puede ser controlado con el comando systemctl","d) Mejora el paralelismo de arranque"],
  o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
  a:0, e:"systemd “no utiliza el archivo de configuración /etc/inittab”."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de las units de systemd?",
+ s:["a) Las units pueden tener tres estados: active, inactive y waiting","b) La activación por socket inicia todos los servicios durante el arranque","c) Mediante cgroups se sigue a cada proceso por su PID individual","d) Las units de tipo target agrupan units o establecen puntos de sincronización durante el arranque"],
+ o:["e) a, d son correctas","f) b, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ one:3, e:"Solo la d es verdadera. a: hay dos estados, active o inactive. b: la activación por socket inicia los servicios bajo demanda. c: con cgroups “no se utiliza el PID individual”."},
 {q:"¿Cuál de las siguientes opciones es correcta acerca de /etc/fstab?",
  s:["a) Define qué particiones se montan al arranque","b) La opción ro monta la partición en modo solo lectura","c) Se pueden referenciar particiones mediante UUID","d) La opción user indica que solo root puede montar la partición"],
  o:["e) a, b, c son correctas","f) a, b son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
@@ -135,6 +151,10 @@ const S = [
  s:[],
  o:["a) Sobrescribe procesos.txt con todos los procesos del sistema","b) Agrega al final de procesos.txt las líneas de la salida de ps que contienen “bash”","c) Busca el texto “bash” dentro del archivo procesos.txt","d) a, c son correctas","e) Ninguna opción anterior es correcta"],
  a:1, e:"El pipe pasa la salida de ps a grep, que filtra; &gt;&gt; agrega sin borrar el contenido previo."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de redirecciones y pipes?",
+ s:["a) El operador 2&gt; redirige la entrada estándar","b) El operador | conecta la salida estándar de un proceso con la entrada estándar de otro","c) El operador &gt;&gt; sobrescribe el archivo destino","d) El operador &lt; redirige la salida estándar hacia un archivo"],
+ o:["e) a, b son correctas","f) b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ one:1, e:"Solo la b es verdadera. 2&gt; redirige stderr, &gt;&gt; agrega al final sin sobrescribir y &lt; toma la entrada desde un archivo."},
 {q:"¿Cuál de las siguientes opciones es correcta acerca del manejo de procesos en GNU/Linux?",
  s:["a) El comando bg permite correr un job en background","b) El comando fg permite correr un job en foreground","c) El comando pstree muestra la jerarquía de procesos","d) El proceso init tiene padre y su PID es 0"],
  o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
@@ -176,8 +196,9 @@ S.forEach((it, i) => {
       <button class="chk ghost" onclick="reveal(${i})">Ver respuesta</button>
       <div class="fb ok"><b>Respuesta:</b><br><code style="white-space:pre">${it.ans}</code><br>${it.e}</div>`;
   } else {
-    if (it.s.length) html += `<div class="st">${it.s.map(x => `<div>${x}</div>`).join('')}</div>`;
-    html += it.o.map((x, k) => `<label class="opt"><input type="radio" name="r${i}" value="${k}"> <span>${x}</span></label>`).join('');
+    it.all = [...it.s, ...it.o];
+    it.ans = (it.one !== undefined) ? it.one : it.s.length + it.a;
+    html += it.all.map((x, k) => `<label class="opt"><input type="radio" name="r${i}" value="${k}"> <span>${x}</span></label>`).join('');
     html += `<button class="chk ghost" onclick="check(${i})">Comprobar</button><div class="fb"></div>`;
   }
   d.innerHTML = html; quiz.appendChild(d);
@@ -188,12 +209,12 @@ function check(i) {
   const sel = d.querySelector('input:checked'), fb = d.querySelector('.fb');
   d.querySelectorAll('label.opt').forEach(l => l.classList.remove('ok', 'bad'));
   const labels = d.querySelectorAll('label.opt');
-  labels[it.a].classList.add('ok');
-  const right = sel && +sel.value === it.a;
+  labels[it.ans].classList.add('ok');
+  const right = sel && +sel.value === it.ans;
   if (sel && !right) labels[+sel.value].classList.add('bad');
   fb.className = 'fb show ' + (right ? 'ok' : 'bad');
   fb.innerHTML = (right ? '<b>¡Correcto!</b> ' : (sel ? '<b>Incorrecto.</b> ' : '<b>Sin responder.</b> ')) +
-    `Respuesta: <b>${it.o[it.a].split(')')[0]})</b>. ${it.e}`;
+    `Respuesta: <b>${it.all[it.ans].split(')')[0]})</b>. ${it.e}`;
   return right;
 }
 function reveal(i) { document.querySelector('#q' + i + ' .fb').classList.toggle('show'); }
