@@ -138,7 +138,7 @@ const S = [
 {q:"¿Cuál de las siguientes opciones es correcta acerca del manejo de procesos en GNU/Linux?",
  s:["a) El comando bg permite correr un job en background","b) El comando fg permite correr un job en foreground","c) El comando pstree muestra la jerarquía de procesos","d) El proceso init tiene padre y su PID es 0"],
  o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
- a:1, e:"init tiene PID 1, no tiene padre y es el padre de todos los procesos."},
+ a:1, e:"La d es falsa porque init tiene PID 1. El PID 0 corresponde a la tarea del kernel swapper/idle. Sobre el padre: la teoría dice que init “no tiene padre y es el padre de todos los procesos”. En un sistema real, ps muestra PPID 0 para init, que apunta a esa tarea del kernel y no a un proceso común. De todas formas, la d sigue siendo falsa por el PID."},
 {q:"¿Cuáles de los siguientes comandos podrían ser utilizados para buscar archivos por nombre en GNU/Linux?",
  s:["a) find","b) grep","c) locate","d) cat","e) pwd"],
  o:["f) a, c son correctas","g) a, b, c son correctas","h) Todas son correctas","i) Ninguna de las anteriores es correcta"],
