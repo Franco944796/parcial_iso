@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Práctica Parte A</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2433;--mute:#5d6678;--acc:#1f4e79;--ok:#1e7d45;--okbg:#e6f4ec;--bad:#b3261e;--badbg:#fbe9e7;--line:#dde2ea}
+@media (prefers-color-scheme:dark){:root{--bg:#14171d;--card:#1d222b;--ink:#e6e9ef;--mute:#9aa3b5;--acc:#7fb2e5;--ok:#5fcf8c;--okbg:#17301f;--bad:#f28b82;--badbg:#3a1d1b;--line:#2e3542}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:1.5rem;margin:0 0 4px;color:var(--acc)}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line);margin-bottom:16px}
+button{font:inherit;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:7px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc)}
+#score{margin-left:auto;font-weight:600}
+h2{font-size:1.1rem;margin:28px 0 10px;color:var(--acc)}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.q .t{font-weight:600;margin:0 0 8px}
+.st{margin:0 0 8px;padding-left:4px}
+.st div{margin:2px 0}
+label.opt{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+label.opt:hover{background:rgba(127,127,127,.08)}
+label.opt.ok{background:var(--okbg);border-color:var(--ok)}
+label.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.fb{display:none;margin-top:8px;padding:8px 10px;border-radius:8px;font-size:.93rem}
+.fb.show{display:block}
+.fb.ok{background:var(--okbg);color:var(--ink);border-left:4px solid var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--ink);border-left:4px solid var(--bad)}
+.q .chk{margin-top:8px;font-size:.88rem;padding:5px 12px}
+code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+textarea{width:100%;font:14px ui-monospace,Menlo,Consolas,monospace;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:44px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>ISO / CSO — Práctica Parte A (GNU/Linux)</h1>
+<p class="sub">Ejercicios en el mismo formato que los parciales del compilado, basados en la teoría (Explicación de P1, Linux Cont.) y el TP1. Elegí una opción por pregunta y corregí individualmente o todo junto.</p>
+
+<div class="bar">
+  <button onclick="checkAll()">Corregir todo</button>
+  <button class="ghost" onclick="resetAll()">Reiniciar</button>
+  <span id="score"></span>
+</div>
+
+<div id="quiz"></div>
+</div>
+
+<script>
+const S = [
+{sec:"Múltiple choice"},
+{q:"¿Cuál de las siguientes afirmaciones acerca del MBR es válida?",
+ s:["a) Se ubica en el cilindro 0, cabeza 0, sector 1","b) Existe un MBR en todos los discos","c) La tabla de particiones ocupa 128 bytes","d) La última acción del BIOS es leer el MBC, llevarlo a memoria y ejecutarlo"],
+ o:["e) a, b, c son correctas","f) a, b, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:1, e:"La tabla de particiones ocupa 64 bytes (446 + 64 + 2 = 512). Lo demás está literal en la teoría."},
+{q:"¿Cuál de las siguientes configuraciones de discos es válida en BIOS/MBR?",
+ s:["a) 2 particiones primarias y 1 extendida con 6 lógicas","b) 4 particiones primarias y 2 lógicas","c) 1 partición extendida con 3 lógicas","d) 2 particiones primarias y 2 extendidas"],
+ o:["e) a, c son correctas","f) a, b son correctas","g) a, b, c son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Las lógicas solo existen dentro de una extendida (la b no tiene extendida), y solo puede haber una extendida por disco (la d es inválida). La extendida ocupa una de las 4 entradas de la tabla."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de la denominación de discos en GNU/Linux?",
+ s:["a) /dev/hda corresponde al disco configurado como Master en el 1º bus IDE","b) /dev/sdb5 es la primera partición lógica del segundo disco SCSI/SATA","c) Las particiones primarias se numeran de la 1 a la 4","d) /dev/hdc corresponde al disco configurado como Slave en el 1º bus IDE"],
+ o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:1, e:"/dev/hdc es el Master del 2º bus IDE; el Slave del 1º bus es /dev/hdb."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del Kernel de GNU/Linux?",
+ s:["a) Sus funciones más importantes son la administración de memoria, CPU y E/S","b) Lo que lo hace híbrido es la capacidad de cargar y descargar funcionalidad mediante módulos","c) Los drivers se ejecutan en modo usuario","d) Está licenciado bajo la licencia GPL"],
+ o:["e) a, b, d son correctas","f) a, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"En un núcleo monolítico los drivers y el código del Kernel se ejecutan en modo privilegiado."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del versionado del Kernel (A.B.C.D)?",
+ s:["a) A denota la versión y es la que cambia con menor frecuencia","b) Antes de la versión 2.6, un número B impar indicaba una versión de producción","c) C cambia cuando hay nuevos drivers o características","d) D cambia cuando se corrige un error grave sin agregar nueva funcionalidad"],
+ o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Antes de la 2.6, B impar = desarrollo y B par = producción."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del software libre?",
+ s:["a) Una de sus libertades es la de estudiar el funcionamiento del programa","b) Software libre y software gratuito son sinónimos","c) La versión actual de la licencia GPL es la 3","d) La FSF fue creada por Richard Stallman para financiar el proyecto GNU"],
+ o:["e) a, c, d son correctas","f) a, b, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Según la teoría, “es un gran error asociar el software libre con el software gratuito”."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de GNU/Linux?",
+ s:["a) Es case sensitive","b) Es multiusuario y multitarea","c) Todo es un archivo, incluso los dispositivos y directorios","d) Todos los directorios deben estar en la misma partición"],
+ o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:1, e:"“Cada directorio puede estar en una partición diferente (/temp, /home, etc.)”."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del Intérprete de comandos en GNU/Linux?",
+ s:["a) También es conocido como CLI (Command Line Interface)","b) Es el modo de comunicación entre el usuario y el SO","c) Todos los usuarios deben utilizar el mismo intérprete de comandos","d) Algunos intérpretes de comandos son programables"],
+ o:["e) a, b, d son correctas","f) a, b son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Cada usuario puede tener una interfaz o shell distinta."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de emuladores y virtualizadores?",
+ s:["a) La emulación permite ejecutar arquitecturas diferentes a las soportadas por el hardware","b) La virtualización completa utiliza un hypervisor o monitor de máquinas virtuales","c) La emulación es más eficiente que la virtualización completa","d) La paravirtualización permite correr SOs modificados para entornos virtualizados"],
+ o:["e) a, b, d son correctas","f) b, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"La emulación es “muy costosa y poco eficiente”; la virtualización aprovecha la CPU real."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del gestor de arranque?",
+ s:["a) Se ejecuta luego del código del BIOS","b) Puede instalarse en el MBR o en el sector de arranque de la partición raíz o activa (VBR)","c) GRUB solo puede cargar sistemas operativos GNU/Linux","d) Su finalidad es cargar una imagen de Kernel de alguna partición para su ejecución"],
+ o:["e) a, b, d son correctas","f) a, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"GRUB es un gestor de arranque múltiple."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de GRUB?",
+ s:["a) En GRUB Legacy, la fase 1.5 se ubica en el MBR gap","b) GRUB 2 mantiene la fase 1.5","c) GRUB Legacy se configura a través de /boot/grub/menu.lst","d) En GRUB 2 el archivo /boot/grub/grub.cfg no debería editarse manualmente (se usa update-grub)"],
+ o:["e) a, c son correctas","f) a, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:1, e:"“En Grub 2 la fase 1.5 ya no existe más”."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de UEFI y GPT?",
+ s:["a) La especificación EFI es propiedad de Intel","b) GPT utiliza direccionamiento LBA en lugar de cylinder-header-sector","c) La cabecera GPT y la tabla de particiones se escriben solo al principio del disco","d) El MBR heredado se almacena en el LBA 0"],
+ o:["e) a, b, d son correctas","f) b, c, d son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Se escriben al principio y al final del disco (redundancia)."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de Secure Boot?",
+ s:["a) Propone mecanismos para un arranque libre de código malicioso","b) Utiliza pares de claves simétricas","c) Las claves públicas se almacenan en el firmware","d) Si la clave privada está vencida o fue revocada, la verificación puede fallar"],
+ o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Secure Boot usa pares de claves asimétricas."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del arranque SysV init?",
+ s:["a) El proceso init posee PID 1 y se configura a través de /etc/inittab","b) El runlevel 0 corresponde al modo monousuario","c) El runlevel 6 corresponde a reboot","d) Los scripts se guardan en /etc/init.d y en /etc/rcX.d hay links simbólicos a ellos"],
+ o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"El runlevel 0 es halt (apagado); el monousuario es el 1."},
+{q:"En /etc/rc2.d existe el link <code>K20apache2</code>. ¿Cuál de las siguientes opciones es correcta?",
+ s:["a) Al entrar en el runlevel 2 se invoca el script apache2 con el argumento stop","b) El número 20 indica el orden de ejecución","c) El link apunta a un script ubicado en /etc/init.d","d) La K indica que el script se debe iniciar"],
+ o:["e) a, b, c son correctas","f) b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"S = start, K = stop (kill). &lt;orden&gt; es un número de dos dígitos que funciona como prioridad."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de systemd?",
+ s:["a) Los runlevels son reemplazados por targets","b) Utiliza el archivo de configuración /etc/inittab","c) Puede ser controlado con el comando systemctl","d) Mejora el paralelismo de arranque"],
+ o:["e) a, c, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"systemd “no utiliza el archivo de configuración /etc/inittab”."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca de /etc/fstab?",
+ s:["a) Define qué particiones se montan al arranque","b) La opción ro monta la partición en modo solo lectura","c) Se pueden referenciar particiones mediante UUID","d) La opción user indica que solo root puede montar la partición"],
+ o:["e) a, b, c son correctas","f) a, b son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"user: cualquier usuario puede montar la partición."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del manejo de usuarios en GNU/Linux?",
+ s:["a) El comando passwd modifica el archivo /etc/shadow","b) usermod -G modifica los grupos adicionales del usuario","c) El archivo /etc/group almacena los hashes de las contraseñas","d) El comando useradd modifica el archivo /etc/passwd"],
+ o:["e) a, b, d son correctas","f) a, b son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"Los hashes están en /etc/shadow; /etc/group guarda los grupos."},
+{q:"Luego de ejecutar <code>chmod 640</code> sobre el archivo notas.txt, ¿cuál de las siguientes opciones es correcta si listamos el estado del archivo?",
+ s:[],
+ o:["a) -rw-r----- 1 user group 4 may 19 18:30 notas.txt","b) -rwxr----- 1 user group 4 may 19 18:30 notas.txt","c) drw-r----- 1 user group 4 may 19 18:30 notas.txt","d) -rw-rw---- 1 user group 4 may 19 18:30 notas.txt"],
+ a:0, e:"6 = rw-, 4 = r--, 0 = ---. La “d” inicial indicaría un directorio."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del manejo de permisos en UNIX?",
+ s:["a) Se pueden asignar permisos de lectura, escritura y ejecución","b) Los permisos se definen para el usuario dueño, el grupo dueño y otros","c) Si un archivo tiene permisos 744, cualquier usuario puede ejecutarlo","d) El comando chown permite cambiar el propietario de un archivo"],
+ o:["e) a, b, d son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"744 = rwxr--r--: solo el dueño puede ejecutar."},
+{q:"El siguiente comando: <code>ps aux | grep bash &gt;&gt; procesos.txt</code>",
+ s:[],
+ o:["a) Sobrescribe procesos.txt con todos los procesos del sistema","b) Agrega al final de procesos.txt las líneas de la salida de ps que contienen “bash”","c) Busca el texto “bash” dentro del archivo procesos.txt","d) a, c son correctas","e) Ninguna opción anterior es correcta"],
+ a:1, e:"El pipe pasa la salida de ps a grep, que filtra; &gt;&gt; agrega sin borrar el contenido previo."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del manejo de procesos en GNU/Linux?",
+ s:["a) El comando bg permite correr un job en background","b) El comando fg permite correr un job en foreground","c) El comando pstree muestra la jerarquía de procesos","d) El proceso init tiene padre y su PID es 0"],
+ o:["e) a, b son correctas","f) a, b, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:1, e:"init tiene PID 1, no tiene padre y es el padre de todos los procesos."},
+{q:"¿Cuáles de los siguientes comandos podrían ser utilizados para buscar archivos por nombre en GNU/Linux?",
+ s:["a) find","b) grep","c) locate","d) cat","e) pwd"],
+ o:["f) a, c son correctas","g) a, b, c son correctas","h) Todas son correctas","i) Ninguna de las anteriores es correcta"],
+ a:0, e:"grep busca texto dentro de los archivos, cat muestra contenido y pwd muestra el directorio actual."},
+{q:"¿Qué comando (único) empaqueta y comprime con gzip el directorio /var/log en el archivo logs.tar.gz?",
+ s:[],
+ o:["a) gzip /var/log logs.tar.gz","b) tar -cvf logs.tar.gz /var/log","c) tar -xzvf logs.tar.gz /var/log","d) tar -czvf logs.tar.gz /var/log"],
+ a:3, e:"-c crea, -z comprime, -v verbose, -f archivo. Sin -z solo empaqueta; -x extrae."},
+{q:"¿Cuál de las siguientes opciones es correcta acerca del editor vim?",
+ s:["a) Posee 3 modos: Insert, Visual y de Órdenes (Normal)","b) Con :w se escriben los cambios","c) Con /frase se busca “frase” dentro del archivo","d) Con dd se deshace el último cambio"],
+ o:["e) a, b, c son correctas","f) a, c son correctas","g) Todas las opciones anteriores son correctas","h) Ninguna opción anterior es correcta"],
+ a:0, e:"dd corta (borra) la línea; para deshacer se usa u."},
+{sec:"Preguntas de comando (**)", },
+{cmd:true, q:"Indique el comando necesario para asignarle los siguientes permisos al archivo /home/iso/informe.txt: propietario lectura y escritura, grupo solo lectura y otros sin permisos.",
+ ans:"chmod 640 /home/iso/informe.txt", e:"6 = rw-, 4 = r--, 0 = ---."},
+{cmd:true, q:"Indique el/los comando/s para que el archivo /srv/datos.csv pase a ser del usuario “ana” y del grupo “contables”, con todos los permisos para el propietario, lectura y ejecución para el grupo y ninguno para otros. Asuma que es root.",
+ ans:"chown ana:contables /srv/datos.csv\nchmod 750 /srv/datos.csv", e:"7 = rwx, 5 = r-x, 0 = ---."},
+{cmd:true, q:"Indique el comando para crear el usuario “pepe” y luego agregarlo como grupo adicional al grupo “iso”.",
+ ans:"useradd pepe\nusermod -aG iso pepe", e:"useradd agrega el usuario; usermod -G modifica los grupos adicionales (-a evita quitar los existentes)."},
+{cmd:true, q:"Indique un único comando que guarde en $HOME/cantidad.txt la cantidad de archivos .conf que hay directamente en /etc.",
+ ans:"ls /etc/*.conf | wc -l > $HOME/cantidad.txt", e:"ls lista, el pipe pasa la salida a wc -l (cuenta líneas) y &gt; la escribe en el archivo."},
+{cmd:true, q:"Indique el comando para descomprimir y desempaquetar el archivo backup.tar.gz en el directorio actual.",
+ ans:"tar -xzvf backup.tar.gz", e:"-x extrae, -z descomprime gzip, -f indica el archivo."},
+];
+
+const quiz = document.getElementById('quiz');
+let n = 0;
+S.forEach((it, i) => {
+  if (it.sec) { const h = document.createElement('h2'); h.textContent = it.sec; quiz.appendChild(h); n = 0; return; }
+  n++;
+  const d = document.createElement('div'); d.className = 'q'; d.id = 'q' + i;
+  let html = `<p class="t">${n}. ${it.q}</p>`;
+  if (it.cmd) {
+    html += `<textarea placeholder="Escribí tu respuesta..."></textarea>
+      <button class="chk ghost" onclick="reveal(${i})">Ver respuesta</button>
+      <div class="fb ok"><b>Respuesta:</b><br><code style="white-space:pre">${it.ans}</code><br>${it.e}</div>`;
+  } else {
+    if (it.s.length) html += `<div class="st">${it.s.map(x => `<div>${x}</div>`).join('')}</div>`;
+    html += it.o.map((x, k) => `<label class="opt"><input type="radio" name="r${i}" value="${k}"> <span>${x}</span></label>`).join('');
+    html += `<button class="chk ghost" onclick="check(${i})">Comprobar</button><div class="fb"></div>`;
+  }
+  d.innerHTML = html; quiz.appendChild(d);
+});
+
+function check(i) {
+  const it = S[i], d = document.getElementById('q' + i);
+  const sel = d.querySelector('input:checked'), fb = d.querySelector('.fb');
+  d.querySelectorAll('label.opt').forEach(l => l.classList.remove('ok', 'bad'));
+  const labels = d.querySelectorAll('label.opt');
+  labels[it.a].classList.add('ok');
+  const right = sel && +sel.value === it.a;
+  if (sel && !right) labels[+sel.value].classList.add('bad');
+  fb.className = 'fb show ' + (right ? 'ok' : 'bad');
+  fb.innerHTML = (right ? '<b>¡Correcto!</b> ' : (sel ? '<b>Incorrecto.</b> ' : '<b>Sin responder.</b> ')) +
+    `Respuesta: <b>${it.o[it.a].split(')')[0]})</b>. ${it.e}`;
+  return right;
+}
+function reveal(i) { document.querySelector('#q' + i + ' .fb').classList.toggle('show'); }
+function checkAll() {
+  let ok = 0, tot = 0;
+  S.forEach((it, i) => { if (it.sec || it.cmd) return; tot++; if (check(i)) ok++; });
+  document.getElementById('score').textContent = `Puntaje: ${ok} / ${tot}`;
+}
+function resetAll() {
+  document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('label.opt').forEach(l => l.classList.remove('ok', 'bad'));
+  document.querySelectorAll('.fb').forEach(f => f.classList.remove('show'));
+  document.querySelectorAll('textarea').forEach(t => t.value = '');
+  document.getElementById('score').textContent = '';
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
